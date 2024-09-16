@@ -5,6 +5,7 @@ contract SaveEther{
 
     error CantSendZero();
     error InsufficientFunds();
+    error InsufientBalance();
 
     address public owner;
 
@@ -16,6 +17,7 @@ contract SaveEther{
 
     event DepositSuccesful(address indexed _user, uint256 indexed _amount);
     event withdrawalSucessful(address indexed _user, uint256 indexed _amount);
+    event transferSuccessful(address indexed _recipent,uint256 indexed  _amount);
    
 
 
@@ -44,10 +46,12 @@ contract SaveEther{
 
     function transferFunds(address  _recipent,uint256 _amount) external {
         require(_recipent != address(0));
+        if(balances[msg.sender] < _amount){revert InsufientBalance();}
         balances[msg.sender] -= _amount;
         balances[_recipent] += _amount;
         (bool sucess,) = _recipent.call{value: _amount}("");
         require(sucess);
+        emit transferSuccessful(_recipent, _amount);
         
     }
 

@@ -77,9 +77,9 @@ describe("SaveEther", function () {
     });
   });
 
-  //Another Function
+  //Another Function which is withdraw
   describe("withdraw", function () {
-    it("should revert on sending more than balance", async function () {
+    it("should revert on withdrawing more than balance", async function () {
       const [owner, otherAccount] = await hre.ethers.getSigners();
       const {saveEther} = await loadFixture(deploySaveEther);
 
@@ -135,6 +135,74 @@ describe("SaveEther", function () {
       //await expect(saveEther.deposit({ value: ethers.parseEther("0") })).to.be.revertedWithCustomError(saveEther, "CantSendZero");
     });
   });
+
+  //Transfer
+  describe("transferFunds", function () {
+    it("should revert on transfering more than balance", async function () {
+      const [owner, otherAccount] = await hre.ethers.getSigners();
+      const {saveEther} = await loadFixture(deploySaveEther);
+
+      
+      const depositAmount = ethers.parseEther("4");
+    
+   
+
+     await  (saveEther.deposit({value: depositAmount}))
+      const transferAmount = ethers.parseEther("8");
+     await expect ( saveEther.transferFunds(otherAccount,transferAmount)).to.be.revertedWithCustomError(saveEther,"InsufientBalance");
+
+
+    }); 
+      it("should have the correct balance after transfer", async function () {
+      const [owner, otherAccount] = await hre.ethers.getSigners();
+      const {saveEther} = await loadFixture(deploySaveEther);
+      //deposit first
+      const depositAmount = ethers.parseEther("4");
+      await  (saveEther.deposit({value: depositAmount}))
+       const balBefore = await saveEther.getMyBalance();
+
+      //transfer next
+      const transferAmount = ethers.parseEther("4");
+     
+   
+
+     await  (saveEther.transferFunds(otherAccount,transferAmount));
+     
+      const balAfter = await saveEther.getMyBalance();
+    
+
+      expect(await saveEther.getMyBalance()).to.be.equal(balAfter);
+      expect(await saveEther.getContractBalance()).to.be.equal(balAfter)
+   
+
+      //await expect(saveEther.deposit({ value: ethers.parseEther("0") })).to.be.revertedWithCustomError(saveEther, "CantSendZero");
+    });
+    it("should emit transfer correctly", async function () {
+      const [owner, otherAccount] = await hre.ethers.getSigners();
+      const {saveEther} = await loadFixture(deploySaveEther);
+
+    //deposit first
+      const depositAmount = ethers.parseEther("4");
+      await  (saveEther.deposit({value: depositAmount}))
+       const balBefore = await saveEther.getMyBalance();
+
+      //transfer next
+      const transferAmount = ethers.parseEther("2");
+     
+   
+
+     await  (saveEther.transferFunds(otherAccount,transferAmount));
+     
+      const balAfter = await saveEther.getMyBalance();
+    
+      expect (await saveEther.transferFunds(otherAccount,transferAmount)).to.emit(saveEther, "transferSuccessful").withArgs(otherAccount,transferAmount)
+      
+   
+
+      //await expect(saveEther.deposit({ value: ethers.parseEther("0") })).to.be.revertedWithCustomError(saveEther, "CantSendZero");
+    });
+  });
+
 
 
   });
