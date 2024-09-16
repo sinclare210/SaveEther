@@ -12,7 +12,7 @@ contract StudentPortal{
 
 
     struct Student{
-        uint regNo; 
+     
         string name;
         string email;
         uint dob;
@@ -24,26 +24,18 @@ contract StudentPortal{
     }
     
 
-    mapping ( uint => Student) public studentRecords;
-    Student[] public students;
-
-    
-
-    
-
+    mapping ( address => Student) public studentRecords;
+ 
     modifier onlyOwner (){
         require(owner == msg.sender,"Not Owner");
         _;
     }
 
-    
-
-   
-
-    function registerStudents(uint _regNo, string memory _name,string memory _email,string memory _lga,uint _dob,string  memory _country,string memory _state) public  onlyOwner(){
-            if (studentRecords[_regNo].exist == false){
-                Student memory newStudent = Student({
-                regNo: _regNo,    
+    function registerStudents( string memory _name,string memory _email,string memory _lga,uint _dob,string  memory _country,string memory _state) public  onlyOwner(){
+            if (studentRecords[msg.sender].exist == false){
+             
+            studentRecords[msg.sender] = (Student({
+                 
                 name:_name,
                 email:_email,
                 lga:_lga,
@@ -51,71 +43,43 @@ contract StudentPortal{
                 country:_country,
                 state:_state,
                 exist: true
-            });
-            studentRecords[_regNo] = (newStudent);
-        students.push(newStudent);
+            }));
+           
             }   else{
                 revert AlreadyAStudent();
             } 
 
     }
 
-     function updateRecords(uint _regNo,string memory _name,string memory _email,string memory _lga,uint _dob,string  memory _country,string memory _state,bool _exist) external onlyOwner(){
-        if (studentRecords[_regNo].exist == true){
-            studentRecords[_regNo].regNo = _regNo;
-            studentRecords[_regNo].name = _name;
-           studentRecords[_regNo].email = _email;
-           studentRecords[_regNo].lga = _lga;
-           studentRecords[_regNo].dob = _dob;
-           studentRecords[_regNo].country = _country;
-           studentRecords[_regNo].state = _state;
-           studentRecords[_regNo].exist = _exist;
-
-           for (uint i = 0; i < students.length; i++) {
-                if (students[i].regNo == _regNo) {
-                    
-                    students[i].name = _name;
-                    students[i].email = _email;
-                    students[i].dob = _dob;
-                    students[i].lga = _lga;
-                    students[i].country = _country;
-                    students[i].state = _state;
-                    break;
-                }
-            }
-            
-        }else{
+     function updateRecords(string memory _name,string memory _email,string memory _lga,uint _dob,string  memory _country,string memory _state,bool _exist) external onlyOwner(){
+        if (studentRecords[msg.sender].exist == true){
+          
+            studentRecords[msg.sender].name = _name;
+           studentRecords[msg.sender].email = _email;
+           studentRecords[msg.sender].lga = _lga;
+           studentRecords[msg.sender].dob = _dob;
+           studentRecords[msg.sender].country = _country;
+           studentRecords[msg.sender].state = _state;
+           studentRecords[msg.sender].exist = _exist;
+           }else{
             revert NotAStudent();
         }
            
            
     } 
 
-    function deleteRecords(uint _regNo) external onlyOwner{
-        if (studentRecords[_regNo].exist == true){
-            delete studentRecords[_regNo];
+    function deleteRecords() external onlyOwner{
+        if (studentRecords[msg.sender].exist == true){
+            delete studentRecords[msg.sender];
 
-             for (uint i = 0; i < students.length; i++) {
-                if (students[i].regNo == _regNo) {
-                    students[i] = students[students.length - 1];
-                    students.pop();
-                    break;
-                }
-            }
         }else{
             revert NotAStudent();
         }
        
     }
 
-    function getAllStudents() external view  onlyOwner returns  (Student[] memory){
-        Student[] memory allStudentsRecords = new Student[](students.length);
-        for (uint i = 0; i < students.length; i++) 
-        {
-            allStudentsRecords[i] = students[i];
-        }
-
-        return allStudentsRecords;
+    function getStudents(address _student) external view  onlyOwner returns  (Student memory){
+       return studentRecords[_student];
     }
 
 
