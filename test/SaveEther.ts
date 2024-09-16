@@ -136,7 +136,7 @@ describe("SaveEther", function () {
     });
   });
 
-  //Transfer
+  //Transfer function
   describe("transferFunds", function () {
     it("should revert on transfering more than balance", async function () {
       const [owner, otherAccount] = await hre.ethers.getSigners();
